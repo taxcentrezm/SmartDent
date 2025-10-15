@@ -1,4 +1,4 @@
-// api/_libsql.js
+
 import { Client } from '@libsql/client';
 
 export function getClient() {
