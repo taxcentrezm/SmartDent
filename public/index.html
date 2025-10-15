@@ -10,7 +10,7 @@
   <!-- Feather icons -->
   <script src="https://unpkg.com/feather-icons"></script>
 
-  <style>
+ <style>
 *,
 ::before,
 ::after {
@@ -374,7 +374,7 @@ video {
   margin-right:auto
 }
 .-mt-12 {
-  margin-top:-3rem
+  margin-top:1rem;
 }
 .mb-3 {
   margin-bottom:0.75rem
@@ -802,7 +802,7 @@ video {
     grid-column:span 2 / span 2
   }
   .lg\:h-96 {
-    height:24rem
+    height:64rem;
   }
   .lg\:grid-cols-3 {
     grid-template-columns:repeat(3, minmax(0, 1fr))
@@ -811,6 +811,27 @@ video {
     grid-template-columns:repeat(4, minmax(0, 1fr))
   }
 }
+
+    /* small custom helpers */
+    .card { @apply bg-white rounded-2xl shadow p-4; }
+    .glass { background: rgba(255,255,255,0.65); backdrop-filter: blur(6px); }
+    /* slideshow overlay */
+    .header-gradient { background: linear-gradient(90deg, rgba(99,102,241,0.12), rgba(236,72,153,0.06)); }
+    /* dropdown visibility (for keyboard/touch) */
+    .dropdown-hidden { display: none; }
+    /* keep charts responsive */
+    .chart-wrap { height: 260px; }
+  
+    /* small custom helpers */
+    .card { @apply bg-white rounded-2xl shadow p-4; }
+    .glass { background: rgba(255,255,255,0.65); backdrop-filter: blur(6px); }
+    /* slideshow overlay */
+    .header-gradient { background: linear-gradient(90deg, rgba(99,102,241,0.12), rgba(236,72,153,0.06)); }
+    /* dropdown visibility (for keyboard/touch) */
+    .dropdown-hidden { display: none; }
+    /* keep charts responsive */
+    .chart-wrap { height: 260px; }
+  
 
     /* small custom helpers */
     .card { @apply bg-white rounded-2xl shadow p-4; }
