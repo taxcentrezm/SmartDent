@@ -1,0 +1,31 @@
+{
+  "name": "smart-dent-weld",
+  "version": "1.0.0",
+  "description": "SmartDent ERP demo project",
+  "main": "index.js",
+  "scripts": {
+    "start": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.5.2",
+    "chart.js": "^4.4.0",
+    "feather-icons": "^4.29.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "vercel": "^28.0.0"
+  },
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
+  "keywords": [
+    "dental",
+    "erp",
+    "clinic",
+    "dashboard"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
