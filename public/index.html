@@ -831,566 +831,66 @@ video {
     .dropdown-hidden { display: none; }
     /* keep charts responsive */
     .chart-wrap { height: 260px; }
-  
-
-    /* small custom helpers */
-    .card { @apply bg-white rounded-2xl shadow p-4; }
-    .glass { background: rgba(255,255,255,0.65); backdrop-filter: blur(6px); }
-    /* slideshow overlay */
-    .header-gradient { background: linear-gradient(90deg, rgba(99,102,241,0.12), rgba(236,72,153,0.06)); }
-    /* dropdown visibility (for keyboard/touch) */
-    .dropdown-hidden { display: none; }
-    /* keep charts responsive */
-    .chart-wrap { height: 260px; }
+    body { font-family: 'Inter', sans-serif; background: #f9fafb; overflow-x: hidden; }
+    .card { @apply bg-white p-4 rounded-xl shadow-sm border border-gray-100; }
+    .header-gradient { background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.3)); }
+    .slide { transition: opacity 1s ease; }
   </style>
 </head>
+
 <body class="bg-gray-50 font-sans text-gray-800 antialiased">
-
-  <!-- ===== Top navigation over slideshow header ===== -->
+  <!-- ===== Header / Nav / Slideshow ===== -->
   <header class="relative">
-    <!-- Slideshow -->
-    <div id="slideshow" class="h-64 md:h-80 lg:h-96 relative overflow-hidden rounded-b-2xl">
-      <!-- slides (replace/extend images as needed) -->
-      <img class="slide absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000" 
-           src="image (3).jpg" alt="clinic 1">
-      <img class="slide absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000" 
-           src="image (2).jpg" alt="clinic 2">
-      <img class="slide absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000" 
-           src="image (1).jpg" alt="clinic 3">
-      <img class="slide absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000" 
-           src="image (4).jpg" alt="clinic 4">
-      <!-- header overlay content -->
-      <div class="absolute inset-0 header-gradient">
-        <div class="container mx-auto px-4 py-4 md:py-6">
-          <!-- top nav (floating, modern minimal) -->
-          <nav class="flex items-center justify-between">
-            <!-- left: brand + nav links -->
-            <div class="flex items-center gap-6">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow">
-                  <!-- small tooth icon as logo (feather 'zap' used as placeholder) -->
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3v6"></path><path d="M8 10s1 2 4 2 4-2 4-2"></path><path d="M6 21s2-4 6-4 6 4 6 4"></path>
-                  </svg>
-                </div>
-                <div class="text-white font-semibold">SmartDent</div>
-              </div>
-
-              <!-- nav links (large screens) -->
-              <ul class="hidden md:flex items-center gap-2 text-white/90">
-                <li class="relative group">
-                  <a href="#" class="px-3 py-2 inline-flex items-center gap-2 hover:bg-white/10 rounded-md">
-                    <i data-feather="home" class="h-4 w-4"></i> Dashboard
-                  </a>
-                </li>
-
-                <li class="relative group">
-                  <button class="px-3 py-2 inline-flex items-center gap-2 hover:bg-white/10 rounded-md" data-dropdown-target="patientsDropdown">
-                    <i data-feather="users" class="h-4 w-4"></i> Patients
-                    <svg class="h-3 w-3 ml-1 transform" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5"/></svg>
-                  </button>
-                  <!-- dropdown -->
-                  <div id="patientsDropdown" class="dropdown-hidden absolute left-0 mt-2 w-44 bg-white rounded-lg shadow-lg text-gray-800 py-2 ring-1 ring-black ring-opacity-5">
-                    <a class="block px-4 py-2 hover:bg-gray-100" href="#">Add Patient</a>
-                    <a class="block px-4 py-2 hover:bg-gray-100" href="#">Appointments</a>
-                    <a class="block px-4 py-2 hover:bg-gray-100" href="#">Records</a>
-                  </div>
-                </li>
-
-                <li class="relative group">
-                  <button class="px-3 py-2 inline-flex items-center gap-2 hover:bg-white/10 rounded-md" data-dropdown-target="clinicalDropdown">
-                    <i data-feather="clipboard" class="h-4 w-4"></i> Clinical
-                    <svg class="h-3 w-3 ml-1 transform" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5"/></svg>
-                  </button>
-                  <div id="clinicalDropdown" class="dropdown-hidden absolute left-0 mt-2 w-44 bg-white rounded-lg shadow-lg text-gray-800 py-2 ring-1 ring-black ring-opacity-5">
-                    <a class="block px-4 py-2 hover:bg-gray-100" href="#">Charting</a>
-                    <a class="block px-4 py-2 hover:bg-gray-100" href="#">Imaging</a>
-                    <a class="block px-4 py-2 hover:bg-gray-100" href="#">Prescriptions</a>
-                  </div>
-                </li>
-
-                <li>
-                  <a href="#" class="px-3 py-2 inline-flex items-center gap-2 hover:bg-white/10 rounded-md">
-                    <i data-feather="file-text" class="h-4 w-4"></i> Billing
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" class="px-3 py-2 inline-flex items-center gap-2 hover:bg-white/10 rounded-md">
-                    <i data-feather="credit-card" class="h-4 w-4"></i> HR
-                  </a>
-                </li>
-
-                <li>
-                  <a href="#" class="px-3 py-2 inline-flex items-center gap-2 hover:bg-white/10 rounded-md">
-                    <i data-feather="bar-chart-2" class="h-4 w-4"></i> Reports
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <!-- right: quick actions + profile -->
-            <div class="flex items-center gap-3">
-              <div class="hidden md:flex items-center gap-2">
-                <button id="quickAdd" class="bg-white/95 text-indigo-600 px-3 py-2 rounded-md inline-flex items-center gap-2 shadow-sm">
-                  <i data-feather="plus-circle" class="h-4 w-4"></i> Quick Add
-                </button>
-              </div>
-
-              <!-- profile dropdown -->
-              <div class="relative">
-                <button id="profileBtn" class="flex items-center gap-2 bg-white/90 px-3 py-2 rounded-full shadow-sm">
-                  <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&auto=format&fit=crop&ixlib=rb-4.0.3&s=4" alt="profile" class="w-8 h-8 rounded-full object-cover">
-                  <span class="hidden md:inline-block text-sm">Dr. Phiri</span>
-                  <i data-feather="chevron-down" class="h-4 w-4"></i>
-                </button>
-                <div id="profileDropdown" class="dropdown-hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 ring-1 ring-black ring-opacity-5">
-                  <a class="block px-4 py-2 hover:bg-gray-100" href="#">Profile</a>
-                  <a class="block px-4 py-2 hover:bg-gray-100" href="#">Settings</a>
-                  <a class="block px-4 py-2 hover:bg-gray-100" href="#">Sign out</a>
-                </div>
-              </div>
-            </div>
-          </nav>
-
-          <!-- header text / CTAs - centered -->
-          <div class="mt-8 md:mt-12 text-center text-white max-w-3xl mx-auto">
-            <h2 class="text-2xl md:text-4xl font-extrabold drop-shadow">Your clinic operations — streamlined</h2>
-            <p class="mt-2 text-white/90">Appointments, clinical records, billing, payroll and inventory — all in one place.</p>
-            <div class="mt-4 flex items-center justify-center gap-3">
-              <button class="px-4 py-2 bg-white text-indigo-600 rounded-md font-medium shadow inline-flex items-center gap-2">
-                <i data-feather="calendar"></i> New Appointment
-              </button>
-              <button class="px-4 py-2 bg-white/20 text-white border border-white/30 rounded-md inline-flex items-center gap-2">
-                <i data-feather="users"></i> New Patient
-              </button>
-            </div>
+    <div id="slideshow" class="h-64 md:h-80 lg:h-96 relative overflow-hidden rounded-b-2xl"></div>
+    <div class="absolute inset-0 header-gradient">
+      <nav id="navbar" class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow">
+            <i data-feather="activity" class="text-indigo-600"></i>
           </div>
+          <span class="text-white font-semibold">SmartDent</span>
         </div>
+        <ul class="hidden md:flex gap-4 text-white/90">
+          <li><a href="#" class="hover:underline">Dashboard</a></li>
+          <li><a href="#" class="hover:underline">Patients</a></li>
+          <li><a href="#" class="hover:underline">Clinical</a></li>
+          <li><a href="#" class="hover:underline">Billing</a></li>
+          <li><a href="#" class="hover:underline">HR</a></li>
+          <li><a href="#" class="hover:underline">Reports</a></li>
+        </ul>
+        <button id="quickAdd" class="bg-white/95 text-indigo-600 px-3 py-2 rounded-md shadow-sm flex items-center gap-2">
+          <i data-feather="plus-circle" class="h-4 w-4"></i> Quick Add
+        </button>
+      </nav>
+      <div class="text-center text-white mt-10">
+        <h1 class="text-3xl font-bold">Your Dental Clinic — Streamlined</h1>
+        <p class="mt-2 text-white/90">Patients, payroll, billing, and inventory in one place.</p>
       </div>
     </div>
   </header>
 
-  <!-- ===== Main page content ===== -->
+  <!-- ===== Main Content ===== -->
   <main class="container mx-auto px-4 -mt-12 relative z-10">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- main column (left) -->
-      <section class="lg:col-span-2 space-y-6">
-        <!-- overview cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="card flex items-center gap-4">
-            <div class="p-3 rounded-lg bg-indigo-50">
-              <i data-feather="users" class="text-indigo-600 h-5 w-5"></i>
-            </div>
-            <div>
-              <div class="text-sm text-gray-500">Total Patients</div>
-              <div class="text-xl font-semibold">1,420</div>
-              <div class="text-xs text-green-600 mt-1">+3.4% this month</div>
-            </div>
-          </div>
-
-          <div class="card flex items-center gap-4">
-            <div class="p-3 rounded-lg bg-rose-50">
-              <i data-feather="calendar" class="text-rose-500 h-5 w-5"></i>
-            </div>
-            <div>
-              <div class="text-sm text-gray-500">Appointments Today</div>
-              <div class="text-xl font-semibold">38</div>
-              <div class="text-xs text-amber-600 mt-1">5 pending confirmations</div>
-            </div>
-          </div>
-
-          <div class="card flex items-center gap-4">
-            <div class="p-3 rounded-lg bg-green-50">
-              <i data-feather="dollar-sign" class="text-green-600 h-5 w-5"></i>
-            </div>
-            <div>
-              <div class="text-sm text-gray-500">Revenue (YTD)</div>
-              <div class="text-xl font-semibold">$162,400</div>
-              <div class="text-xs text-green-600 mt-1">+12.5% vs last year</div>
-            </div>
-          </div>
-
-          <div class="card flex items-center gap-4">
-            <div class="p-3 rounded-lg bg-yellow-50">
-              <i data-feather="package" class="text-yellow-600 h-5 w-5"></i>
-            </div>
-            <div>
-              <div class="text-sm text-gray-500">Stock Alerts</div>
-              <div class="text-xl font-semibold">7 low items</div>
-              <div class="text-xs text-gray-500 mt-1">Auto-reorder enabled</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- charts -->
-        <div class="card">
-          <div class="flex items-start justify-between mb-3">
-            <div>
-              <h3 class="font-semibold">Revenue Trend</h3>
-              <p class="text-sm text-gray-500">Monthly revenue across services</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <button class="px-3 py-1 border rounded-md text-sm">30d</button>
-              <button class="px-3 py-1 border rounded-md text-sm">6m</button>
-              <button class="px-3 py-1 border rounded-md text-sm">1y</button>
-            </div>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="revenueChart"></canvas>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="card md:col-span-2">
-            <h4 class="font-semibold mb-3">Service Breakdown</h4>
-            <div class="flex gap-6 items-center">
-              <div style="width:240px;height:200px;"><canvas id="serviceChart"></canvas></div>
-              <div class="space-y-2">
-                <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full" style="background:#60A5FA"></span><div><div class="text-sm font-medium">Fillings</div><div class="text-xs text-gray-500">45% of services</div></div></div>
-                <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full" style="background:#34D399"></span><div><div class="text-sm font-medium">Cleaning</div><div class="text-xs text-gray-500">25% of services</div></div></div>
-                <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full" style="background:#FBBF24"></span><div><div class="text-sm font-medium">Root Canal</div><div class="text-xs text-gray-500">15% of services</div></div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <h4 class="font-semibold mb-3">Quick Actions</h4>
-            <div class="grid gap-3">
-              <button class="flex items-center gap-3 px-4 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100"><i data-feather="calendar"></i> Schedule</button>
-              <button class="flex items-center gap-3 px-4 py-2 rounded-lg bg-green-50 hover:bg-green-100"><i data-feather="users"></i> Manage Patients</button>
-              <button class="flex items-center gap-3 px-4 py-2 rounded-lg bg-rose-50 hover:bg-rose-100"><i data-feather="file-text"></i> Invoicing</button>
-              <button class="flex items-center gap-3 px-4 py-2 rounded-lg bg-yellow-50 hover:bg-yellow-100"><i data-feather="settings"></i> Settings</button>
-            </div>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- right column -->
-      <aside class="space-y-6">
-        <!-- Payroll -->
-        <div class="card">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <h4 class="font-semibold">Payroll</h4>
-              <p class="text-sm text-gray-500">Monthly payroll summary</p>
-            </div>
-            <div class="text-right">
-              <div class="text-sm text-gray-500">Total</div>
-              <div id="payrollTotal" class="font-semibold">$12,300</div>
-            </div>
-          </div>
-
-          <div id="payrollList" class="divide-y"></div>
-
-          <div class="mt-4 flex gap-2">
-            <button id="runPayroll" class="flex-1 px-4 py-2 rounded-md bg-emerald-500 text-white">Run Payroll</button>
-            <button id="exportPayroll" class="px-4 py-2 rounded-md border">Export</button>
-          </div>
-        </div>
-
-        <!-- Currency converter -->
-        <div class="card">
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="font-semibold">Multi-Currency Converter</h4>
-            <div id="rateIndicator" class="text-xs text-gray-500">Rates: —</div>
-          </div>
-
-          <div class="space-y-3">
-            <div class="flex gap-2">
-              <input id="convAmount" type="number" value="1000" class="flex-1 px-3 py-2 border rounded-md" />
-              <select id="fromCurr" class="px-3 py-2 border rounded-md"></select>
-            </div>
-
-            <div class="flex gap-2">
-              <div class="flex-1 px-3 py-2 border rounded-md bg-gray-50 text-sm" id="fromCode">USD</div>
-              <select id="toCurr" class="px-3 py-2 border rounded-md"></select>
-            </div>
-
-            <div class="text-sm">
-              <div class="font-medium">Converted</div>
-              <div id="convertedValue" class="text-lg">—</div>
-              <div id="ratesError" class="text-xs text-amber-700 mt-2"></div>
-            </div>
-
-            <div class="flex gap-2 mt-2">
-              <button id="applyToPayroll" class="flex-1 px-3 py-2 rounded-md bg-indigo-600 text-white">Apply to Payroll</button>
-              <button id="refreshRates" class="px-3 py-2 rounded-md border">Refresh</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- recent patients -->
-        <div class="card">
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="font-semibold">Recent Patients</h4>
-            <div class="flex items-center gap-2">
-              <input id="patientSearch" class="px-2 py-1 border rounded-md" placeholder="Search" />
-              <button id="searchBtn" class="p-2 rounded-md border"><i data-feather="search"></i></button>
-            </div>
-          </div>
-          <ul id="patientList" class="space-y-3"></ul>
-        </div>
-      </aside>
-    </div>
-
-    <footer class="mt-8 text-sm text-gray-500 text-center">
-      SmartDent ERP • Empowering Dental Practices with Precision
-    </footer>
+    <div id="dashboard" class="grid grid-cols-1 lg:grid-cols-3 gap-6"></div>
   </main>
 
-  <!-- ===== Scripts: icons, slideshow, dropdowns, charts, currency, payroll demo ===== -->
-  <script>
-    // activate feather icons
+  <footer class="mt-8 text-sm text-gray-500 text-center">
+    SmartDent ERP • Empowering Dental Practices with Precision
+  </footer>
+
+  <!-- ===== Scripts ===== -->
+  <script type="module">
+    import { initSlideshow, initCharts, initPayroll, initPatients, initConverter, initNavActions } from './scripts/core.js';
     feather.replace();
-
-    /* ----------------------
-       Slideshow (auto + manual)
-       ---------------------- */
-    (function initSlideshow(){
-      const slides = Array.from(document.querySelectorAll('#slideshow .slide'));
-      if(!slides.length) return;
-      let idx = 0;
-      slides.forEach((s, i) => s.style.opacity = i === 0 ? '1' : '0');
-
-      function show(i){
-        slides.forEach((s, j) => s.style.opacity = j === i ? '1' : '0');
-      }
-      // auto-advance every 5 seconds
-      setInterval(() => { idx = (idx + 1) % slides.length; show(idx); }, 5000);
-    })();
-
-    /* ----------------------
-       Dropdown helpers (top nav)
-       ---------------------- */
-    (function initDropdowns(){
-      const toggles = document.querySelectorAll('[data-dropdown-target]');
-      toggles.forEach(btn => {
-        const id = btn.getAttribute('data-dropdown-target');
-        const menu = document.getElementById(id);
-        if(!menu) return;
-
-        // show/hide on click (works for touch and keyboard)
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const visible = menu.style.display === 'block';
-          document.querySelectorAll('.dropdown-hidden').forEach(d => d.style.display = 'none');
-          menu.style.display = visible ? 'none' : 'block';
-        });
-      });
-
-      // profile dropdown
-      const profileBtn = document.getElementById('profileBtn');
-      const profileDropdown = document.getElementById('profileDropdown');
-      profileBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-      });
-
-      // close on outside click
-      document.addEventListener('click', () => {
-        document.querySelectorAll('.dropdown-hidden').forEach(d => d.style.display = 'none');
-      });
-    })();
-
-    /* ----------------------
-       Charts (Chart.js)
-       ---------------------- */
-    (function initCharts(){
-      // revenue line chart
-      const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-      const revenueChart = new Chart(revenueCtx, {
-        type: 'line',
-        data: {
-          labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'],
-          datasets: [{
-            label: 'Revenue',
-            data: [12000,15000,14000,18000,17000,20000,21000,23000,19000],
-            borderWidth: 3,
-            tension: 0.4,
-            borderColor: '#6366F1',
-            pointRadius: 3,
-            fill: false
-          }]
-        },
-        options: {
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: false } },
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-
-      // service breakdown pie
-      const serviceCtx = document.getElementById('serviceChart').getContext('2d');
-      const serviceChart = new Chart(serviceCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Fillings','Cleaning','Root Canal','Cosmetic','Ortho'],
-          datasets: [{ data: [45,25,15,10,5], backgroundColor: ['#60A5FA','#34D399','#FBBF24','#F87171','#A78BFA'] }]
-        },
-        options: { plugins: { legend: { position: 'right' } }, responsive: true, maintainAspectRatio: false }
-      });
-    })();
-
-    /* ----------------------
-       Payroll demo rendering
-       ---------------------- */
-    (function initPayroll(){
-      const employees = [
-        { id:1, name:'Dr. Alice Mwansa', role:'Dentist', baseSalary:5000, currency:'USD' },
-        { id:2, name:'Dr. Brian Zulu', role:'Orthodontist', baseSalary:6200, currency:'USD' },
-        { id:3, name:'Nurse Chipo', role:'Dental Nurse', baseSalary:1200, currency:'USD' },
-        { id:4, name:'Receptionist Tinashe', role:'Admin', baseSalary:900, currency:'USD' }
-      ];
-
-      function render(){
-        const list = document.getElementById('payrollList'); list.innerHTML = '';
-        let total = 0;
-        employees.forEach(emp => {
-          const tax = +(emp.baseSalary * 0.12).toFixed(2);
-          const net = +(emp.baseSalary - tax).toFixed(2);
-          total += emp.baseSalary;
-          const div = document.createElement('div');
-          div.className = 'py-3 flex items-center justify-between';
-          div.innerHTML = `
-            <div class="flex items-center gap-3">
-              <div class="p-2 rounded-md bg-indigo-50"><i data-feather="user" class="text-indigo-600"></i></div>
-              <div>
-                <div class="font-medium">${emp.name}</div>
-                <div class="text-xs text-gray-500">${emp.role}</div>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-sm">$${emp.baseSalary.toLocaleString()}</div>
-              <div class="text-xs text-gray-500">Net $${net.toLocaleString()}</div>
-            </div>
-          `;
-          list.appendChild(div);
-        });
-        document.getElementById('payrollTotal').textContent = `$${total.toLocaleString()}`;
-        feather.replace();
-      }
-      render();
-
-      document.getElementById('runPayroll').addEventListener('click', () => {
-        alert('Payroll simulated: payments queued (demo).');
-      });
-      document.getElementById('exportPayroll').addEventListener('click', () => {
-        alert('Export simulated: CSV generated. (Demo)');
-      });
-    })();
-
-    /* ----------------------
-       Recent patients demo + search
-       ---------------------- */
-    (function initPatients(){
-      const patients = [
-        {name:'Alice Mukuka', note:'Cleaning', date:'Oct 01', status:'Paid'},
-        {name:'Brian Zulu', note:'Root Canal', date:'Sep 28', status:'Invoice'},
-        {name:'Nadine Clarke', note:'Crown Fitting', date:'Sep 25', status:'Overdue'}
-      ];
-      const ul = document.getElementById('patientList');
-      function render(list){
-        ul.innerHTML = '';
-        list.forEach(p => {
-          const li = document.createElement('li');
-          li.className = 'flex items-center justify-between';
-          const initials = p.name.split(' ').map(s=>s[0]).slice(0,2).join('');
-          li.innerHTML = `
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-semibold">${initials}</div>
-              <div>
-                <div class="font-medium">${p.name}</div>
-                <div class="text-xs text-gray-500">${p.note} — ${p.date}</div>
-              </div>
-            </div>
-            <div class="text-sm ${p.status==='Paid'?'text-green-600':p.status==='Overdue'?'text-rose-600':'text-amber-600'}">${p.status}</div>
-          `;
-          ul.appendChild(li);
-        });
-      }
-      render(patients);
-
-      document.getElementById('searchBtn').addEventListener('click', () => {
-        const q = document.getElementById('patientSearch').value.toLowerCase();
-        render(patients.filter(p => p.name.toLowerCase().includes(q) || p.note.toLowerCase().includes(q)));
-      });
-    })();
-
-    /* ----------------------
-       Currency converter (live fetch with fallback)
-       ---------------------- */
-    (function initConverter(){
-      let rates = null;
-      const rateIndicator = document.getElementById('rateIndicator');
-      const ratesErrorEl = document.getElementById('ratesError');
-
-      async function fetchRates(){
-        rateIndicator.textContent = 'Rates: Loading…';
-        try{
-          const res = await fetch('https://api.exchangerate.host/latest?base=USD');
-          const data = await res.json();
-          if(data && data.rates){
-            rates = data.rates;
-            populateSelects(Object.keys(rates));
-            rateIndicator.textContent = 'Rates: Live';
-            ratesErrorEl.textContent = '';
-            updateConversion();
-          } else throw new Error('No rates returned');
-        }catch(err){
-          // fallback sample rates
-          rates = { USD:1, ZMW:24.5, EUR:0.92, GBP:0.78, ZAR:18.2 };
-          populateSelects(Object.keys(rates));
-          rateIndicator.textContent = 'Rates: Sample (offline)';
-          ratesErrorEl.textContent = 'Could not fetch live rates — using sample rates.';
-          updateConversion();
-        }
-      }
-
-      function populateSelects(list){
-        const from = document.getElementById('fromCurr');
-        const to = document.getElementById('toCurr');
-        if(from.options.length) return;
-        // keep the most-used currencies up front
-        const preferred = ['USD','EUR','GBP','ZMW','ZAR'];
-        const ordered = [...new Set([...preferred, ...list])];
-        ordered.slice(0,40).forEach(c => {
-          const o1 = document.createElement('option'); o1.value = c; o1.textContent = c; from.appendChild(o1);
-          const o2 = document.createElement('option'); o2.value = c; o2.textContent = c; to.appendChild(o2);
-        });
-        from.value = 'USD';
-        to.value = 'ZMW';
-        document.getElementById('fromCode').textContent = 'USD';
-      }
-
-      function updateConversion(){
-        const amt = Number(document.getElementById('convAmount').value) || 0;
-        const from = document.getElementById('fromCurr').value || 'USD';
-        const to = document.getElementById('toCurr').value || 'ZMW';
-        document.getElementById('fromCode').textContent = from;
-        if(!rates){ document.getElementById('convertedValue').textContent='—'; return; }
-        const rateFrom = rates[from] || 1;
-        const rateTo = rates[to] || 1;
-        const converted = (amt / rateFrom) * rateTo;
-        document.getElementById('convertedValue').textContent = `${converted.toFixed(2)} ${to}`;
-      }
-
-      document.getElementById('convAmount').addEventListener('input', updateConversion);
-      document.getElementById('fromCurr').addEventListener('change', updateConversion);
-      document.getElementById('toCurr').addEventListener('change', updateConversion);
-      document.getElementById('refreshRates').addEventListener('click', fetchRates);
-      document.getElementById('applyToPayroll').addEventListener('click', () => {
-        const converted = document.getElementById('convertedValue').textContent;
-        if(!converted || converted === '—') return alert('No converted amount available');
-        alert(`Converted (${converted}) applied to payroll (demo).`);
-      });
-
-      // initial fetch
-      fetchRates();
-    })();
-
+    initSlideshow();
+    initCharts();
+    initPayroll();
+    initPatients();
+    initConverter();
+    initNavActions();
   </script>
+</body>
+</html>
+
 </body>
 </html>
