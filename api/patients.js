@@ -1,5 +1,4 @@
 // api/patients.js
-import { json } from '@vercel/node'; // not required; Vercel accepts plain exports
 import { getClient } from './_libsql.js';
 
 export default async function handler(req, res) {
