@@ -1,11 +1,20 @@
 // api/_libsql.js
-import { createClient } from '@libsql/client';
+import { Client } from '@libsql/client';
 
-if (!process.env.TURSO_DB_URL) {
-  throw new Error('TURSO_DB_URL is not set');
+/**
+ * Returns a Turso SQL client connected via environment variables.
+ * Make sure TURSO_DB_URL (and optionally TURSO_DB_AUTH_TOKEN) are set in Vercel.
+ */
+export function getClient() {
+  const url = process.env.TURSO_DB_URL;
+  const authToken = process.env.TURSO_DB_AUTH_TOKEN; // optional
+
+  if (!url) {
+    throw new Error('TURSO_DB_URL environment variable is not set');
+  }
+
+  return new Client({
+    url,
+    authToken
+  });
 }
-
-export const client = createClient({
-  url: process.env.TURSO_DB_URL,
-  authToken: process.env.TURSO_DB_AUTH_TOKEN || '', // optional if you have auth
-});
