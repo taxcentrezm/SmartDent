@@ -1,51 +1,39 @@
-// api/charts.js
-import { client } from './_libsql.js';
+// charts.js
+import { getClient } from "./_libsql.js";
 
 export default async function handler(req, res) {
+  const client = getClient();
+
   try {
-    // --------------------------
-    // 1️⃣ Revenue chart (last 6 months)
-    // --------------------------
-    const revenueQuery = `
-      SELECT 
-        strftime('%b', date) AS month, 
-        SUM(amount) AS total
-      FROM appointments
-      WHERE date >= date('now','-6 months')
-      GROUP BY month
-      ORDER BY date
-    `;
-    const revenueResult = await client.execute(revenueQuery);
-    const revenueLabels = revenueResult.map(r => r.month);
-    const revenueValues = revenueResult.map(r => r.total);
+    // Revenue over months
+    const rev = await client.execute(`
+      SELECT month, revenue
+      FROM revenue
+      ORDER BY month ASC
+    `);
 
-    // --------------------------
-    // 2️⃣ Services breakdown
-    // --------------------------
-    const servicesQuery = `
-      SELECT service_type, COUNT(*) AS count
-      FROM appointments
-      GROUP BY service_type
+    // Most common treatments or services
+    const svc = await client.execute(`
+      SELECT service, count
+      FROM services
       ORDER BY count DESC
-    `;
-    const servicesResult = await client.execute(servicesQuery);
-    const servicesLabels = servicesResult.map(r => r.service_type);
-    const servicesValues = servicesResult.map(r => r.count);
+      LIMIT 5
+    `);
 
-    // Assign colors dynamically (reuse palette or generate)
-    const palette = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#3B82F6', '#F43F5E'];
-    const servicesColors = servicesValues.map((_, i) => palette[i % palette.length]);
+    const revenue = {
+      labels: rev.rows.map(r => r.month),
+      values: rev.rows.map(r => r.revenue),
+    };
 
-    // --------------------------
-    // Send JSON response
-    // --------------------------
-    res.status(200).json({
-      revenue: { labels: revenueLabels, values: revenueValues },
-      services: { labels: servicesLabels, values: servicesValues, colors: servicesColors }
-    });
+    const services = {
+      labels: svc.rows.map(s => s.service),
+      values: svc.rows.map(s => s.count),
+      colors: ["#4F46E5", "#10B981", "#F59E0B", "#EF4444", "#3B82F6"],
+    };
 
+    res.status(200).json({ revenue, services });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch chart data' });
+    console.error("CHARTS API ERROR:", err);
+    res.status(500).json({ error: "Failed to load charts", details: err.message });
   }
 }
