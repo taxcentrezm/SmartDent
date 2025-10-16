@@ -71,10 +71,10 @@ async function initDashboardCards() {
     const revenueYTD = cards[2].querySelector('.font-semibold');
     const stockAlerts = cards[3].querySelector('.font-semibold');
 
-    if (totalPatients) totalPatients.textContent = data.totalPatients?.toLocaleString() || '0';
-    if (appointmentsToday) appointmentsToday.textContent = data.appointmentsToday?.toLocaleString() || '0';
-    if (revenueYTD) revenueYTD.textContent = `$${data.revenueYTD?.toLocaleString() || '0'}`;
-    if (stockAlerts) stockAlerts.textContent = data.stockAlerts?.toLocaleString() || '0';
+    if (totalPatients) totalPatients.textContent = (data.totalPatients ?? 0).toLocaleString();
+    if (appointmentsToday) appointmentsToday.textContent = (data.appointmentsToday ?? 0).toLocaleString();
+    if (revenueYTD) revenueYTD.textContent = `$${(data.revenueYTD ?? 0).toLocaleString()}`;
+    if (stockAlerts) stockAlerts.textContent = (data.lowStockItems ?? 0).toLocaleString();
   } catch (err) {
     console.error('Dashboard cards error:', err);
   }
@@ -102,11 +102,7 @@ async function initPatients() {
     ul.innerHTML = '';
     patients.forEach(p => {
       const name = `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unknown';
-      const initials = name
-        .split(' ')
-        .map(s => s[0] || '')
-        .slice(0, 2)
-        .join('');
+      const initials = name.split(' ').map(s => s[0] || '').slice(0, 2).join('');
       const li = document.createElement('li');
       li.className = 'flex items-center justify-between';
       li.innerHTML = `
@@ -208,30 +204,30 @@ async function initCharts() {
     const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
     const serviceCtx = document.getElementById('serviceChart')?.getContext('2d');
 
-if (revenueCtx && data.revenue) {
-  new Chart(revenueCtx, {
-    type: 'line',
-    data: {
-      labels: data.revenue.labels, // Jan, Feb, ...
-      datasets: [{
-        label: 'Revenue',
-        data: data.revenue.values, // 0 or actual revenue
-        borderColor: '#6366F1',
-        backgroundColor: 'rgba(99,102,241,0.1)',
-        tension: 0.4,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, ticks: { callback: v => `$${v.toLocaleString()}` } }
-      }
+    if (revenueCtx && data.revenue) {
+      new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+          labels: data.revenue.labels || [],
+          datasets: [{
+            label: 'Revenue',
+            data: data.revenue.values || [],
+            borderColor: '#6366F1',
+            backgroundColor: 'rgba(99,102,241,0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { callback: v => `$${v.toLocaleString()}` } }
+          }
+        }
+      });
     }
-  });
-}
 
     if (serviceCtx && data.services) {
       new Chart(serviceCtx, {
