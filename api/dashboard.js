@@ -1,80 +1,42 @@
+// api/dashboard.js
 import { getClient } from './_libsql.js';
 
 export default async function handler(req, res) {
   const client = getClient();
-
   try {
-    // Total patients
-    const patientsResult = await client.execute(`SELECT COUNT(*) AS total FROM patients`);
-    const totalPatients = patientsResult?.rows?.[0]?.total ?? 0;
+    // 1. Dashboard metrics
+    const totalPatients = (await client.execute(`SELECT COUNT(*) AS count FROM patients`)).rows[0].count;
+    const appointmentsToday = (await client.execute(`
+      SELECT COUNT(*) AS count 
+      FROM appointments 
+      WHERE DATE(start_time) = DATE('now')
+    `)).rows[0].count;
 
-    // Appointments today
-    const today = new Date().toISOString().slice(0, 10);
-    const apptResult = await client.execute(
-      `SELECT COUNT(*) AS total FROM appointments WHERE DATE(start_time) = ?`,
-      [today]
-    );
-    const appointmentsToday = apptResult?.rows?.[0]?.total ?? 0;
+    const revenueRows = (await client.execute(`SELECT * FROM revenue`)).rows; // Use your revenue table
 
-    // Revenue YTD
-    const revenueResult = await client.execute(
-      `SELECT SUM(amount) AS total FROM revenue WHERE year = ?`,
-      [2025]
-    );
-    const revenueYTD = revenueResult?.rows?.[0]?.total ?? 0;
+    // 2. Build revenue trend & service breakdown
+    const revenueByMonth = Array(12).fill(0);
+    const services = {};
 
-    // Low stock items
-    const stockResult = await client.execute(
-      `SELECT COUNT(*) AS total FROM inventory WHERE quantity <= reorder_level`
-    );
-    const lowStockItems = stockResult?.rows?.[0]?.total ?? 0;
-
-    // Monthly revenue (for Revenue Trend)
-    const revenueRows = await client.execute(
-      `SELECT month, SUM(amount) AS total 
-       FROM revenue 
-       WHERE year = ? 
-       GROUP BY month 
-       ORDER BY month`,
-      [2025]
-    );
-
-    const revenueTrend = {
-      labels: Array.from({ length: 12 }, (_, i) => new Date(2025, i).toLocaleString('default', { month: 'short' })),
-      values: Array(12).fill(0)
-    };
-
-    revenueRows.rows.forEach(r => {
-      const idx = r.month - 1;
-      revenueTrend.values[idx] = r.total;
+    revenueRows.forEach(r => {
+      revenueByMonth[r.month - 1] += r.amount;
+      services[r.service] = (services[r.service] || 0) + r.amount;
     });
 
-    // Service breakdown (for Doughnut chart)
-    const serviceRows = await client.execute(
-      `SELECT service, SUM(amount) AS total
-       FROM revenue
-       WHERE year = ?
-       GROUP BY service`,
-      [2025]
-    );
-
-    const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F43F5E']; // sample palette
-    const services = {
-      labels: serviceRows.rows.map(r => r.service),
-      values: serviceRows.rows.map(r => r.total),
-      colors: serviceRows.rows.map((_, i) => colors[i % colors.length])
-    };
-
-    res.status(200).json({
+    res.json({
       totalPatients,
       appointmentsToday,
-      revenueYTD,
-      lowStockItems,
-      revenue: revenueTrend,
-      services
+      revenueYTD: revenueByMonth.reduce((a,b)=>a+b,0),
+      lowStockItems: (await client.execute(`SELECT COUNT(*) AS count FROM inventory WHERE quantity < reorder_level`)).rows[0].count,
+      revenue: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], values: revenueByMonth },
+      services: {
+        labels: Object.keys(services),
+        values: Object.values(services),
+        colors: Object.keys(services).map(() => `hsl(${Math.random()*360},70%,60%)`)
+      }
     });
-  } catch (err) {
-    console.error('DASHBOARD API ERROR:', err);
-    res.status(500).json({ error: 'Internal server error' });
+  } catch(e) {
+    console.error('DASHBOARD API ERROR:', e);
+    res.status(500).json({ error: e.message });
   }
 }
