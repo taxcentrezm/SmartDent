@@ -1,16 +1,16 @@
-//file-update
-import { Client } from '@libsql/client';
+// _libsql.js
+import { createClient } from "@libsql/client";
 
 export function getClient() {
   const url = process.env.TURSO_DB_URL;
-  const authToken = process.env.TURSO_DB_AUTH_TOKEN; // optional
+  const authToken = process.env.TURSO_DB_AUTH_TOKEN;
 
   if (!url) {
-    throw new Error('TURSO_DB_URL environment variable is not set');
+    throw new Error("TURSO_DB_URL is not set. Please configure it in your environment variables.");
   }
 
-  return new Client({
+  return createClient({
     url,
-    authToken
+    authToken,
   });
 }
