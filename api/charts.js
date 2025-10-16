@@ -5,27 +5,36 @@ export default async function handler(req, res) {
   try {
     const currentYear = new Date().getFullYear();
 
-    // Revenue by month
-    const revenueRows = await client.execute(`
+    // Revenue by month from payroll table
+    const revenueResult = await client.execute(`
       SELECT strftime('%m', period_end) AS month, SUM(net_amount) AS total
       FROM payroll
       WHERE strftime('%Y', period_end) = ?
       GROUP BY month
     `, [currentYear.toString()]);
 
+    // Map Turso rows to objects
+    const revenueRows = revenueResult?.rows?.map(r => ({
+      month: r[0],
+      total: r[1]
+    })) || [];
+
     const monthLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const revenueValues = Array(12).fill(0);
+
     revenueRows.forEach(r => {
       const idx = parseInt(r.month, 10) - 1;
       revenueValues[idx] = r.total || 0;
     });
 
     // Service breakdown from appointments
-    const appointments = await client.execute('SELECT notes FROM appointments');
+    const apptResult = await client.execute('SELECT notes FROM appointments');
+    const appointments = apptResult?.rows?.map(r => r[0]) || [];
     const servicesCount = {};
-    appointments.forEach(a => {
-      const service = a.notes || 'Other';
-      servicesCount[service] = (servicesCount[service] || 0) + 1;
+
+    appointments.forEach(service => {
+      const name = service || 'Other';
+      servicesCount[name] = (servicesCount[name] || 0) + 1;
     });
 
     const serviceLabels = Object.keys(servicesCount);
@@ -36,6 +45,7 @@ export default async function handler(req, res) {
       revenue: { labels: monthLabels, values: revenueValues },
       services: { labels: serviceLabels, values: serviceValues, colors: serviceColors }
     });
+
   } catch (err) {
     console.error('CHARTS API ERROR:', err);
     res.status(500).json({ error: 'Failed to load chart data' });
