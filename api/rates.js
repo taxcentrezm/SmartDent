@@ -1,11 +1,18 @@
+// rates.js
 export default async function handler(req, res) {
   try {
-    const response = await fetch('https://api.exchangerate.host/latest?base=USD');
-    const data = await response.json();
-    if (!data || !data.rates) throw new Error('No rates returned');
-    res.status(200).json(data.rates);
+    // Replace this with a real currency API later
+    const rates = {
+      USD: 1,
+      EUR: 0.92,
+      GBP: 0.78,
+      ZMW: 25.4,
+      ZAR: 18.2,
+    };
+
+    res.status(200).json(rates);
   } catch (err) {
-    // fallback sample rates
-    res.status(200).json({ USD:1, ZMW:24.5, EUR:0.92, GBP:0.78, ZAR:18.2 });
+    console.error("RATES API ERROR:", err);
+    res.status(500).json({ error: "Failed to fetch exchange rates", details: err.message });
   }
 }
