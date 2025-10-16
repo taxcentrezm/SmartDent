@@ -17,11 +17,11 @@ function initSlideshow() {
   if (!slides.length) return;
 
   let idx = 0;
-  slides.forEach((s, i) => s.style.opacity = i === 0 ? '1' : '0');
+  slides.forEach((s, i) => (s.style.opacity = i === 0 ? '1' : '0'));
 
   setInterval(() => {
     idx = (idx + 1) % slides.length;
-    slides.forEach((s, j) => s.style.opacity = j === idx ? '1' : '0');
+    slides.forEach((s, j) => (s.style.opacity = j === idx ? '1' : '0'));
   }, 5000);
 }
 
@@ -31,12 +31,12 @@ function initSlideshow() {
 function initNavActions() {
   const toggles = document.querySelectorAll('[data-dropdown-target]');
   toggles.forEach(btn => {
-    const menu = document.getElementById(btn.getAttribute('data-dropdown-target'));
+    const menu = document.getElementById(btn.dataset.dropdownTarget);
     if (!menu) return;
     btn.addEventListener('click', e => {
       e.stopPropagation();
       const visible = menu.style.display === 'block';
-      document.querySelectorAll('.dropdown-hidden').forEach(d => d.style.display = 'none');
+      document.querySelectorAll('.dropdown-hidden').forEach(d => (d.style.display = 'none'));
       menu.style.display = visible ? 'none' : 'block';
     });
   });
@@ -51,7 +51,7 @@ function initNavActions() {
   }
 
   document.addEventListener('click', () => {
-    document.querySelectorAll('.dropdown-hidden').forEach(d => d.style.display = 'none');
+    document.querySelectorAll('.dropdown-hidden').forEach(d => (d.style.display = 'none'));
   });
 }
 
@@ -66,10 +66,15 @@ async function initDashboardCards() {
     const cards = document.querySelectorAll('.card');
     if (!cards.length) return;
 
-    cards[0].querySelector('.font-semibold').textContent = data.totalPatients?.toLocaleString() || '0';
-    cards[1].querySelector('.font-semibold').textContent = data.appointmentsToday?.toLocaleString() || '0';
-    cards[2].querySelector('.font-semibold').textContent = data.revenueYTD?.toLocaleString() || '0';
-    cards[3].querySelector('.font-semibold').textContent = data.stockAlerts?.toLocaleString() || '0';
+    const totalPatients = cards[0].querySelector('.font-semibold');
+    const appointmentsToday = cards[1].querySelector('.font-semibold');
+    const revenueYTD = cards[2].querySelector('.font-semibold');
+    const stockAlerts = cards[3].querySelector('.font-semibold');
+
+    if (totalPatients) totalPatients.textContent = data.totalPatients?.toLocaleString() || '0';
+    if (appointmentsToday) appointmentsToday.textContent = data.appointmentsToday?.toLocaleString() || '0';
+    if (revenueYTD) revenueYTD.textContent = `$${data.revenueYTD?.toLocaleString() || '0'}`;
+    if (stockAlerts) stockAlerts.textContent = data.stockAlerts?.toLocaleString() || '0';
   } catch (err) {
     console.error('Dashboard cards error:', err);
   }
@@ -86,8 +91,7 @@ async function initPatients() {
     try {
       const res = await fetch('/api/patients');
       const data = await res.json();
-      if (!Array.isArray(data)) return [];
-      return data;
+      return Array.isArray(data) ? data : [];
     } catch (err) {
       console.error('PATIENTS API ERROR:', err);
       return [];
@@ -98,7 +102,11 @@ async function initPatients() {
     ul.innerHTML = '';
     patients.forEach(p => {
       const name = `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unknown';
-      const initials = name.split(' ').map(s => s[0] || '').slice(0, 2).join('');
+      const initials = name
+        .split(' ')
+        .map(s => s[0] || '')
+        .slice(0, 2)
+        .join('');
       const li = document.createElement('li');
       li.className = 'flex items-center justify-between';
       li.innerHTML = `
@@ -109,7 +117,9 @@ async function initPatients() {
             <div class="text-xs text-gray-500">${p.notes || ''} — ${p.created_at || ''}</div>
           </div>
         </div>
-        <div class="text-sm ${p.status==='Paid'?'text-green-600':p.status==='Overdue'?'text-rose-600':'text-amber-600'}">${p.status || '—'}</div>`;
+        <div class="text-sm ${
+          p.status === 'Paid' ? 'text-green-600' : p.status === 'Overdue' ? 'text-rose-600' : 'text-amber-600'
+        }">${p.status || '—'}</div>`;
       ul.appendChild(li);
     });
   }
@@ -143,8 +153,7 @@ async function initPayroll() {
     try {
       const res = await fetch('/api/payroll');
       const data = await res.json();
-      if (!Array.isArray(data)) return [];
-      return data;
+      return Array.isArray(data) ? data : [];
     } catch (err) {
       console.error('PAYROLL API ERROR:', err);
       return [];
@@ -154,8 +163,9 @@ async function initPayroll() {
   function render(employees) {
     listEl.innerHTML = '';
     let total = 0;
+
     employees.forEach(emp => {
-      const baseSalary = emp.base_salary || 0;
+      const baseSalary = Number(emp.base_salary ?? 0);
       const net = +(baseSalary * 0.88).toFixed(2);
       total += baseSalary;
 
@@ -175,6 +185,7 @@ async function initPayroll() {
         </div>`;
       listEl.appendChild(div);
     });
+
     totalEl.textContent = `$${total.toLocaleString()}`;
     if (window.feather) feather.replace();
   }
@@ -298,7 +309,7 @@ async function initConverter() {
 }
 
 // -----------------------
-// Initialize everything on DOM ready
+// Initialize everything
 // -----------------------
 document.addEventListener('DOMContentLoaded', () => {
   initIcons();
