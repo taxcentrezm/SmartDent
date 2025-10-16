@@ -1,22 +1,27 @@
-import { getClient } from "./_libsql.js";
+// api/charts.js
+import { getClient } from './_libsql.js';
 
 export default async function handler(req, res) {
+  const db = getClient();
+  if (!db) return res.status(500).json({ error: 'DB client not configured' });
+
   try {
-    const revenue = await db.all(`SELECT strftime('%m', start_time) as month, SUM(amount) as total FROM appointments GROUP BY month`);
-    const services = await db.all(`SELECT type as label, COUNT(*) as value FROM appointments GROUP BY type`);
-    res.json({
-      revenue: {
-        labels: revenue.map(r => r.month),
-        values: revenue.map(r => r.total)
-      },
-      services: {
-        labels: services.map(s => s.label),
-        values: services.map(s => s.value),
-        colors: ["#4f46e5", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6"]
-      }
-    });
+    const revenueRows = await db.execute('SELECT date(created_at) as date, SUM(amount) as total FROM appointments GROUP BY date(created_at)');
+    const revenue = {
+      labels: revenueRows.rows.map(r => r[0]),
+      values: revenueRows.rows.map(r => r[1])
+    };
+
+    const serviceRows = await db.execute('SELECT provider, COUNT(*) as count FROM appointments GROUP BY provider');
+    const services = {
+      labels: serviceRows.rows.map(r => r[0]),
+      values: serviceRows.rows.map(r => r[1]),
+      colors: serviceRows.rows.map((_, i) => ['#6366F1','#F59E0B','#10B981','#EF4444'][i%4])
+    };
+
+    res.json({ revenue, services });
   } catch (err) {
-    console.error(err);
+    console.error('CHARTS API ERROR:', err);
     res.status(500).json({ error: err.message });
   }
 }
