@@ -1,10 +1,19 @@
-import { client } from './_libsql.js';
+// payroll.js
+import { getClient } from "./_libsql.js";
 
 export default async function handler(req, res) {
+  const client = getClient();
+
   try {
-    const result = await client.execute('SELECT id, name, role, baseSalary, currency FROM payroll ORDER BY id');
-    res.status(200).json(result.rows || []);
+    const result = await client.execute(`
+      SELECT id, name, role, baseSalary
+      FROM payroll
+      ORDER BY name ASC
+    `);
+
+    res.status(200).json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("PAYROLL API ERROR:", err);
+    res.status(500).json({ error: "Failed to load payroll", details: err.message });
   }
 }
