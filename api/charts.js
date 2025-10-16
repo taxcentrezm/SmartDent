@@ -12,7 +12,6 @@ export default async function handler(req,res) {
     `);
     const revenueLabels = revenueRes.rows.map(r => r.month);
     const revenueValues = revenueRes.rows.map(r => r.total);
-
     // Services chart - appointments by provider
     const serviceRes = await db.execute(`
       SELECT provider, COUNT(*) AS count
