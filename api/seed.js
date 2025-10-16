@@ -1,57 +1,23 @@
-// seed.js
 import { getClient } from "./_libsql.js";
+import { randomUUID } from "crypto";
 
 export default async function handler(req, res) {
   const client = getClient();
-
   try {
     await client.execute(`
-      INSERT INTO patients (name, note, date, status)
+      INSERT INTO employees (id, name, role, base_salary, currency)
       VALUES
-        ('John Banda', 'Root Canal', '2025-10-10', 'Paid'),
-        ('Mary Mwila', 'Cleaning', '2025-10-09', 'Pending'),
-        ('Peter Tembo', 'Crown Fitting', '2025-10-07', 'Overdue');
-    `);
+        ('${randomUUID()}', 'Dr. Banda', 'Dentist', 18000, 'ZMW'),
+        ('${randomUUID()}', 'Mary Zulu', 'Receptionist', 8500, 'ZMW');
 
-    await client.execute(`
-      INSERT INTO payroll (name, role, baseSalary)
+      INSERT INTO patients (id, first_name, last_name, phone, email, notes)
       VALUES
-        ('Dr. Phiri', 'Dentist', 12000),
-        ('L. Zulu', 'Assistant', 5500),
-        ('K. Banda', 'Receptionist', 4200);
+        ('${randomUUID()}', 'John', 'Phiri', '0977123456', 'john@example.com', 'Routine checkup'),
+        ('${randomUUID()}', 'Agnes', 'Mwila', '0977890123', 'agnes@example.com', 'Cleaning');
     `);
-
-    await client.execute(`
-      INSERT INTO revenue (month, revenue)
-      VALUES
-        ('Jan', 23000),
-        ('Feb', 26500),
-        ('Mar', 29800),
-        ('Apr', 31000),
-        ('May', 33400);
-    `);
-
-    await client.execute(`
-      INSERT INTO services (service, count)
-      VALUES
-        ('Fillings', 45),
-        ('Cleanings', 70),
-        ('Root Canals', 22),
-        ('Implants', 15),
-        ('Crowns', 18);
-    `);
-
-    await client.execute(`
-      INSERT INTO appointments (patient_name, appointment_date, treatment, status)
-      VALUES
-        ('John Banda', '2025-10-20', 'Follow-up', 'Confirmed'),
-        ('Mary Mwila', '2025-10-21', 'Whitening', 'Pending'),
-        ('Peter Tembo', '2025-10-22', 'Check-up', 'Cancelled');
-    `);
-
-    res.status(200).json({ success: true, message: "Sample data inserted successfully." });
+    res.status(200).json({ message: "✅ Seed data inserted successfully" });
   } catch (err) {
     console.error("SEED ERROR:", err);
-    res.status(500).json({ error: "Failed to seed database", details: err.message });
+    res.status(500).json({ error: err.message });
   }
 }
