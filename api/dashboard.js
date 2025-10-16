@@ -1,62 +1,69 @@
-import { client } from '../../db.js';
+import { getClient } from './_libsql.js';
 
 export default async function handler(req, res) {
   try {
-    const year = new Date().getFullYear();
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const client = getClient();
 
-    // 1️⃣ Total Patients
-    const totalPatientsResult = await client.execute(`
-      SELECT COUNT(*) AS total FROM patients
+    // ----------------------
+    // Total patients
+    // ----------------------
+    const patientsResult = await client.execute(`
+      SELECT COUNT(*) AS total FROM patients;
     `);
-    const totalPatients = totalPatientsResult.rows[0]?.total || 0;
+    const totalPatients = patientsResult[0]?.total || 0;
 
-    // 2️⃣ Appointments Today
-    const appointmentsTodayResult = await client.execute(`
-      SELECT COUNT(*) AS total
-      FROM appointments
+    // ----------------------
+    // Appointments today
+    // ----------------------
+    const today = new Date().toISOString().split('T')[0];
+    const appointmentsResult = await client.execute(`
+      SELECT COUNT(*) AS total FROM appointments
       WHERE DATE(start_time) = ?
     `, [today]);
-    const appointmentsToday = appointmentsTodayResult.rows[0]?.total || 0;
+    const appointmentsToday = appointmentsResult[0]?.total || 0;
 
-    // 3️⃣ Revenue YTD
+    // ----------------------
+    // Revenue YTD
+    // ----------------------
+    const year = new Date().getFullYear();
     const revenueResult = await client.execute(`
-      SELECT SUM(amount) AS total
-      FROM appointments
-      WHERE strftime('%Y', created_at) = ?
-    `, [year]);
-    const revenueYTD = revenueResult.rows[0]?.total || 0;
+      SELECT SUM(net_amount) AS total FROM payroll
+      WHERE strftime('%Y', period_end) = ?
+    `, [String(year)]);
+    const revenueYTD = revenueResult[0]?.total || 0;
 
-    // 4️⃣ Low Stock Items
+    // ----------------------
+    // Low stock items
+    // ----------------------
     const stockResult = await client.execute(`
-      SELECT COUNT(*) AS total
-      FROM inventory
-      WHERE quantity <= reorder_level
+      SELECT COUNT(*) AS total FROM inventory
+      WHERE quantity <= reorder_level;
     `);
-    const lowStockItems = stockResult.rows[0]?.total || 0;
+    const lowStockItems = stockResult[0]?.total || 0;
 
-    // 5️⃣ Services Breakdown
+    // ----------------------
+    // Services breakdown (by type of appointment)
+    // ----------------------
     const servicesResult = await client.execute(`
-      SELECT service, COUNT(*) AS total
+      SELECT provider AS service, COUNT(*) AS count
       FROM appointments
-      WHERE strftime('%Y', created_at) = ?
-      GROUP BY service
-    `, [year]);
+      GROUP BY provider;
+    `);
 
-    const colors = ['#60A5FA', '#34D399', '#FBBF24', '#F87171', '#A78BFA'];
     const services = {
-      labels: servicesResult.rows.map(r => r.service),
-      values: servicesResult.rows.map(r => r.total),
-      colors: colors.slice(0, servicesResult.rows.length)
+      labels: servicesResult.map(r => r.service || 'Unknown'),
+      values: servicesResult.map(r => r.count || 0),
+      colors: servicesResult.map((_, i) => ['#60A5FA','#34D399','#FBBF24','#F87171','#A78BFA'][i % 5])
     };
 
-    res.status(200).json({
+    res.json({
       totalPatients,
       appointmentsToday,
       revenueYTD,
       lowStockItems,
       services
     });
+
   } catch (err) {
     console.error('DASHBOARD API ERROR:', err);
     res.status(500).json({ error: err.message });
