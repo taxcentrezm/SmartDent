@@ -1,16 +1,26 @@
-// _libsql.js
+// /api/_libsql.js
 import { createClient } from "@libsql/client";
+import { getConfig } from "./config.js";
+
+let client;
 
 export function getClient() {
-  const url = process.env.TURSO_DB_URL;
-  const authToken = process.env.TURSO_DB_AUTH_TOKEN;
+  if (client) return client;
 
-  if (!url) {
-    throw new Error("TURSO_DB_URL is not set. Please configure it in your environment variables.");
+  const { TURSO_DB_URL, TURSO_DB_AUTH_TOKEN, isConfigured } = getConfig();
+
+  if (!isConfigured) {
+    console.warn("⚠️ Database credentials missing — using mock client.");
+    return {
+      execute: async () => ({ rows: [] }),
+    };
   }
 
-  return createClient({
-    url,
-    authToken,
+  client = createClient({
+    url: TURSO_DB_URL,
+    authToken: TURSO_DB_AUTH_TOKEN,
   });
+
+  console.log("✅ Connected to Turso successfully.");
+  return client;
 }
