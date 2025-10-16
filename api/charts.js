@@ -1,53 +1,55 @@
-import { client } from '../../db.js'; // your database client
+import { getClient } from './_libsql.js';
 
 export default async function handler(req, res) {
   try {
-    // Get current year
+    const client = getClient();
+
+    // ----------------------
+    // Revenue trend (Jan–Dec)
+    // ----------------------
     const year = new Date().getFullYear();
-
-    // Revenue per month (Jan-Dec)
-    const result = await client.execute(`
-      SELECT
-        strftime('%m', created_at) AS month,
-        SUM(amount) AS revenue
-      FROM appointments
-      WHERE strftime('%Y', created_at) = ?
+    const revenueRows = await client.execute(`
+      SELECT strftime('%m', period_end) AS month, SUM(net_amount) AS total
+      FROM payroll
+      WHERE strftime('%Y', period_end) = ?
       GROUP BY month
-      ORDER BY month
-    `, [year]);
+      ORDER BY month ASC
+    `, [String(year)]);
 
-    // Fill missing months with 0
-    const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+    // Fill months 01–12
     const revenueMap = {};
-    result.rows.forEach(r => revenueMap[r.month] = r.revenue || 0);
-    const revenueValues = months.map(m => revenueMap[m] || 0);
-
-    res.json({
-      revenue: {
-        labels: months.map(m => new Date(year, parseInt(m) - 1).toLocaleString('default', { month: 'short' })),
-        values: revenueValues
-      },
-      services: await getServiceBreakdown() // optional: your existing service chart function
+    for (let i = 1; i <= 12; i++) {
+      const key = i.toString().padStart(2, '0');
+      revenueMap[key] = 0;
+    }
+    revenueRows.forEach(r => {
+      revenueMap[r.month] = r.total || 0;
     });
+
+    const revenue = {
+      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      values: Object.values(revenueMap)
+    };
+
+    // ----------------------
+    // Services breakdown
+    // ----------------------
+    const servicesRows = await client.execute(`
+      SELECT provider AS service, COUNT(*) AS count
+      FROM appointments
+      GROUP BY provider;
+    `);
+
+    const services = {
+      labels: servicesRows.map(r => r.service || 'Unknown'),
+      values: servicesRows.map(r => r.count || 0),
+      colors: servicesRows.map((_, i) => ['#60A5FA','#34D399','#FBBF24','#F87171','#A78BFA'][i % 5])
+    };
+
+    res.json({ revenue, services });
+
   } catch (err) {
     console.error('CHARTS API ERROR:', err);
     res.status(500).json({ error: err.message });
   }
-}
-
-// Example function for service breakdown
-async function getServiceBreakdown() {
-  const services = await client.execute(`
-    SELECT service, COUNT(*) AS total
-    FROM appointments
-    WHERE strftime('%Y', created_at) = ?
-    GROUP BY service
-  `, [new Date().getFullYear()]);
-
-  const colors = ['#60A5FA','#34D399','#FBBF24','#F87171','#A78BFA'];
-  return {
-    labels: services.rows.map(r => r.service),
-    values: services.rows.map(r => r.total),
-    colors: colors.slice(0, services.rows.length)
-  };
 }
