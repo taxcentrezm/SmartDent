@@ -62,19 +62,20 @@ async function initDashboardCards() {
   try {
     const res = await fetch('/api/dashboard');
     const data = await res.json();
+    if (!data) return;
 
     const cards = document.querySelectorAll('.card');
     if (!cards.length) return;
 
-    const totalPatients = cards[0].querySelector('.font-semibold');
-    const appointmentsToday = cards[1].querySelector('.font-semibold');
-    const revenueYTD = cards[2].querySelector('.font-semibold');
-    const stockAlerts = cards[3].querySelector('.font-semibold');
+    const totalPatients = cards[0]?.querySelector('.font-semibold');
+    const appointmentsToday = cards[1]?.querySelector('.font-semibold');
+    const revenueYTD = cards[2]?.querySelector('.font-semibold');
+    const lowStockItems = cards[3]?.querySelector('.font-semibold');
 
     if (totalPatients) totalPatients.textContent = (data.totalPatients ?? 0).toLocaleString();
     if (appointmentsToday) appointmentsToday.textContent = (data.appointmentsToday ?? 0).toLocaleString();
     if (revenueYTD) revenueYTD.textContent = `$${(data.revenueYTD ?? 0).toLocaleString()}`;
-    if (stockAlerts) stockAlerts.textContent = (data.lowStockItems ?? 0).toLocaleString();
+    if (lowStockItems) lowStockItems.textContent = (data.lowStockItems ?? 0).toLocaleString();
   } catch (err) {
     console.error('Dashboard cards error:', err);
   }
@@ -200,6 +201,7 @@ async function initCharts() {
   try {
     const res = await fetch('/api/charts');
     const data = await res.json();
+    if (!data) return;
 
     const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
     const serviceCtx = document.getElementById('serviceChart')?.getContext('2d');
@@ -222,9 +224,7 @@ async function initCharts() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: true, ticks: { callback: v => `$${v.toLocaleString()}` } }
-          }
+          scales: { y: { beginAtZero: true, ticks: { callback: v => `$${v.toLocaleString()}` } } }
         }
       });
     }
