@@ -1,42 +1,73 @@
-import { getClient } from './_libsql.js';
-
-export default async function handler(req, res) {
+// -----------------------
+// Charts.js - Dashboard Charts
+// -----------------------
+async function initCharts() {
   try {
-    const client = getClient();
+    const res = await fetch('/api/dashboard');
+    const data = await res.json();
 
-    const year = new Date().getFullYear();
-    const revenueResult = await client.execute(
-      `SELECT strftime('%m', period_end) AS month, SUM(net_amount) AS total
-       FROM payroll
-       WHERE strftime('%Y', period_end) = ?
-       GROUP BY month ORDER BY month ASC`, [String(year)]
-    );
-    const revenueRows = revenueResult.rows || [];
+    const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
+    const serviceCtx = document.getElementById('serviceChart')?.getContext('2d');
 
-    // Fill Jan–Dec
-    const revenueMap = {};
-    for (let i = 1; i <= 12; i++) revenueMap[i.toString().padStart(2, '0')] = 0;
-    revenueRows.forEach(r => { revenueMap[r.month] = r.total || 0; });
+    // Revenue Trend Line Chart
+    if (revenueCtx && data.revenue) {
+      new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+          labels: data.revenue.labels,       // Jan, Feb, ...
+          datasets: [{
+            label: 'Revenue',
+            data: data.revenue.values,       // Monthly revenue values
+            borderColor: '#6366F1',
+            backgroundColor: 'rgba(99,102,241,0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { callback: v => `$${v.toLocaleString()}` }
+            }
+          }
+        }
+      });
+    }
 
-    const revenue = {
-      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-      values: Object.values(revenueMap)
-    };
+    // Service Breakdown Doughnut Chart
+    if (serviceCtx && Array.isArray(data.appointments)) {
+      // Aggregate services from appointments.notes
+      const serviceCounts = {};
+      data.appointments.forEach(app => {
+        const service = app.notes?.trim() || 'Other';
+        serviceCounts[service] = (serviceCounts[service] || 0) + 1;
+      });
 
-    // Services breakdown
-    const servicesResult = await client.execute(
-      `SELECT provider AS service, COUNT(*) AS count FROM appointments GROUP BY provider;`
-    );
-    const servicesRows = servicesResult.rows || [];
-    const services = {
-      labels: servicesRows.map(r => r.service || 'Unknown'),
-      values: servicesRows.map(r => r.count || 0),
-      colors: servicesRows.map((_, i) => ['#60A5FA','#34D399','#FBBF24','#F87171','#A78BFA'][i % 5])
-    };
+      const labels = Object.keys(serviceCounts);
+      const values = Object.values(serviceCounts);
+      const colors = labels.map((_, i) => ['#60A5FA','#34D399','#FBBF24','#F87171','#A78BFA','#F472B6'][i % 6]);
 
-    res.json({ revenue, services });
+      new Chart(serviceCtx, {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: values, backgroundColor: colors }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right' } }
+        }
+      });
+    }
+
   } catch (err) {
-    console.error('CHARTS API ERROR:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Charts error:', err);
   }
 }
+
+// -----------------------
+// Initialize charts on DOM ready
+// -----------------------
+document.addEventListener('DOMContentLoaded', initCharts);
