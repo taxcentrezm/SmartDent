@@ -199,7 +199,7 @@ async function initPayroll() {
 // -----------------------
 async function initCharts() {
   try {
-    const res = await fetch('/api/charts');
+    const res = await fetch('/api/dashboard');  
     const data = await res.json();
     if (!data) return;
 
@@ -210,22 +210,17 @@ async function initCharts() {
       new Chart(revenueCtx, {
         type: 'line',
         data: {
-          labels: data.revenue.labels || [],
+          labels: data.revenue.labels,
           datasets: [{
             label: 'Revenue',
-            data: data.revenue.values || [],
+            data: data.revenue.values,
             borderColor: '#6366F1',
             backgroundColor: 'rgba(99,102,241,0.1)',
-            tension: 0.4,
-            fill: true
+            fill: true,
+            tension: 0.4
           }]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, ticks: { callback: v => `$${v.toLocaleString()}` } } }
-        }
+        options: { responsive: true, maintainAspectRatio: false }
       });
     }
 
@@ -233,16 +228,17 @@ async function initCharts() {
       new Chart(serviceCtx, {
         type: 'doughnut',
         data: {
-          labels: data.services.labels || [],
-          datasets: [{ data: data.services.values || [], backgroundColor: data.services.colors || [] }]
+          labels: data.services.labels,
+          datasets: [{ data: data.services.values, backgroundColor: data.services.colors }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        options: { responsive: true, maintainAspectRatio: false }
       });
     }
   } catch (err) {
     console.error('Charts error:', err);
   }
 }
+
 
 // -----------------------
 // Currency Converter
