@@ -120,9 +120,10 @@ async function initPayroll() {
     try {
       const res = await fetch('/api/payroll');
       const data = await res.json();
+      // Ensure array
       return Array.isArray(data) ? data : [];
     } catch (err) {
-      console.error('PAYROLL API ERROR:', err);
+      console.error('Payroll API error:', err);
       return [];
     }
   }
@@ -132,18 +133,22 @@ async function initPayroll() {
     let total = 0;
 
     employees.forEach(emp => {
-      const gross = emp.gross_amount || 0;
-      const net = emp.net_amount || 0;
+      const name = emp.employee_name || 'Unknown';
+      const role = emp.role || '—';
+      const gross = typeof emp.gross_amount === 'number' ? emp.gross_amount : 0;
+      const net = typeof emp.net_amount === 'number' ? emp.net_amount : 0;
       total += gross;
 
       const div = document.createElement('div');
       div.className = 'py-3 flex items-center justify-between';
       div.innerHTML = `
         <div class="flex items-center gap-3">
-          <div class="p-2 rounded-md bg-indigo-50"><i data-feather="user" class="text-indigo-600"></i></div>
+          <div class="p-2 rounded-md bg-indigo-50">
+            <i data-feather="user" class="text-indigo-600"></i>
+          </div>
           <div>
-            <div class="font-medium">${emp.employee_name || ''}</div>
-            <div class="text-xs text-gray-500">${emp.role || ''}</div>
+            <div class="font-medium">${name}</div>
+            <div class="text-xs text-gray-500">${role}</div>
           </div>
         </div>
         <div class="text-right">
@@ -155,7 +160,7 @@ async function initPayroll() {
     });
 
     totalEl.textContent = `$${total.toLocaleString()}`;
-    if (typeof feather !== "undefined") feather.replace();
+    feather.replace();
   }
 
   const employees = await fetchPayroll();
