@@ -1,19 +1,25 @@
-// patients.js
 import { getClient } from "./_libsql.js";
 
 export default async function handler(req, res) {
-  const client = getClient();
-
   try {
+    const client = getClient();
     const result = await client.execute(`
-      SELECT id, name, note, date, status
+      SELECT 
+        id,
+        first_name,
+        last_name,
+        birthdate,
+        phone,
+        email,
+        notes,
+        created_at
       FROM patients
-      ORDER BY date DESC
+      ORDER BY created_at DESC
     `);
 
     res.status(200).json(result.rows);
   } catch (err) {
     console.error("PATIENTS API ERROR:", err);
-    res.status(500).json({ error: "Failed to load patients", details: err.message });
+    res.status(500).json({ error: err.message });
   }
 }
