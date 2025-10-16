@@ -208,22 +208,30 @@ async function initCharts() {
     const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
     const serviceCtx = document.getElementById('serviceChart')?.getContext('2d');
 
-    if (revenueCtx && data.revenue) {
-      new Chart(revenueCtx, {
-        type: 'line',
-        data: {
-          labels: data.revenue.labels || [],
-          datasets: [{
-            label: 'Revenue',
-            data: data.revenue.values || [],
-            borderColor: '#6366F1',
-            tension: 0.4,
-            fill: false
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
+if (revenueCtx && data.revenue) {
+  new Chart(revenueCtx, {
+    type: 'line',
+    data: {
+      labels: data.revenue.labels, // Jan, Feb, ...
+      datasets: [{
+        label: 'Revenue',
+        data: data.revenue.values, // 0 or actual revenue
+        borderColor: '#6366F1',
+        backgroundColor: 'rgba(99,102,241,0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { callback: v => `$${v.toLocaleString()}` } }
+      }
     }
+  });
+}
 
     if (serviceCtx && data.services) {
       new Chart(serviceCtx, {
