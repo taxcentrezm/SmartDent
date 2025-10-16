@@ -1070,6 +1070,22 @@ video {
       SMAIT-DENTI ERP • Empowering Practices
     </footer>
   </main>
+  <script>
+    async function initDashboardCards() {
+  try {
+    const res = await fetch('/api/dashboard');
+    const data = await res.json();
+    
+    document.querySelector('.card:nth-child(1) .text-xl').textContent = data.totalPatients;
+    document.querySelector('.card:nth-child(2) .text-xl').textContent = data.appointmentsToday;
+    document.querySelector('.card:nth-child(3) .text-xl').textContent = `$${data.revenueYTD.toLocaleString()}`;
+    document.querySelector('.card:nth-child(4) .text-xl').textContent = data.stockAlerts;
+  } catch (err) {
+    console.error('Dashboard cards error:', err);
+  }
+}
+    initDashboardCards();
+  </script>
 <script type="module" src="core.js"></script>
 
 </body>
