@@ -1,24 +1,19 @@
-// api/appointments.js
-import { getClient } from './_libsql.js';
+// appointments.js
+import { getClient } from "./_libsql.js";
 
 export default async function handler(req, res) {
-  const db = getClient();
+  const client = getClient();
 
-  if (req.method === 'GET') {
-    const r = await db.execute('SELECT * FROM appointments ORDER BY start_time DESC LIMIT 200');
-    return res.status(200).json({ data: r.rows.map(row => Object.fromEntries(row)) });
+  try {
+    const result = await client.execute(`
+      SELECT id, patient_name, appointment_date, treatment, status
+      FROM appointments
+      ORDER BY appointment_date DESC
+    `);
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("APPOINTMENTS API ERROR:", err);
+    res.status(500).json({ error: "Failed to load appointments", details: err.message });
   }
-
-  if (req.method === 'POST') {
-    const body = req.body && typeof req.body === 'object' ? req.body : JSON.parse(req.body || '{}');
-    const id = body.id || crypto.randomUUID();
-    await db.execute(
-      `INSERT INTO appointments (id, patient_id, start_time, end_time, provider, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, body.patient_id, body.start_time, body.end_time || null, body.provider || null, body.status || 'scheduled', body.notes || null]
-    );
-    return res.status(201).json({ id });
-  }
-
-  res.setHeader('Allow', 'GET, POST');
-  res.status(405).end('Method Not Allowed');
 }
